@@ -10,10 +10,12 @@ It turns simple props into the full `Metadata` object Next.js expects — includ
 ## Features
 
 - **Title suffixing** — `"Home"` becomes `"Home | MyBrand"` automatically.
-- **OpenGraph** — fills `og:title`, `og:description`, and `og:image` in one call.
-- **Twitter Cards** — maps your image to `summary_large_image` by default.
+- **Configurable separator** — use `" – "` or `" · "` instead of the default `"|"` via `titleSeparator`.
+- **OpenGraph** — fills `og:title`, `og:description`, `og:image`, and `og:locale` in one call.
+- **Twitter Cards** — automatically uses `summary_large_image` when an image is provided, falls back to `summary` otherwise.
 - **Canonical URLs** — combine a `baseUrl` with a page `path` and you're done.
 - **Default fallback image** — set once at the root, used everywhere you don't override it.
+- **`noIndex` support** — mark private pages (`/dashboard`, `/checkout`) with a single flag.
 - **Zero runtime dependencies** — only `next` as a peer dep (for types).
 
 ---
@@ -171,25 +173,28 @@ Page-level props always win over the global config.
 
 ### `SEOConfig`
 
-| Prop           | Type     | Description                                                          |
-| -------------- | -------- | -------------------------------------------------------------------- | ----------- |
-| `siteName`     | `string` | Appended to every title: `"Page                                      | SiteName"`. |
-| `baseUrl`      | `string` | Absolute base URL for canonical links, e.g. `"https://example.com"`. |
-| `defaultImage` | `string` | Fallback OG / Twitter image URL.                                     |
+| Prop             | Type     | Description                                                          |
+| ---------------- | -------- | -------------------------------------------------------------------- |
+| `siteName`       | `string` | Appended to every title: `"Page \| SiteName"`.                       |
+| `baseUrl`        | `string` | Absolute base URL for canonical links, e.g. `"https://example.com"`. |
+| `defaultImage`   | `string` | Fallback OG / Twitter image URL.                                     |
+| `titleSeparator` | `string` | Separator between title and site name. Defaults to `"\|"`.           |
+| `locale`         | `string` | Default `og:locale`, e.g. `"en_US"`.                                 |
 
 ---
 
 ### `SEOProps`
 
-| Prop           | Type     | Required | Description                                                        |
-| -------------- | -------- | -------- | ------------------------------------------------------------------ |
-| `title`        | `string` | ✅       | Page title (without suffix).                                       |
-| `description`  | `string` | ✅       | Short page description.                                            |
-| `image`        | `string` | —        | Overrides `defaultImage`.                                          |
-| `path`         | `string` | —        | Slug appended to `baseUrl` for the canonical URL, e.g. `"/about"`. |
-| `siteName`     | `string` | —        | Overrides global `siteName`. Pass `""` to suppress the suffix.     |
-| `baseUrl`      | `string` | —        | Overrides global `baseUrl`.                                        |
-| `defaultImage` | `string` | —        | Overrides global `defaultImage` for this call.                     |
+| Prop          | Type      | Required | Description                                                        |
+| ------------- | --------- | -------- | ------------------------------------------------------------------ |
+| `title`       | `string`  | ✅       | Page title (without suffix).                                       |
+| `description` | `string`  | ✅       | Short page description.                                            |
+| `image`       | `string`  | —        | Overrides `defaultImage`.                                          |
+| `path`        | `string`  | —        | Slug appended to `baseUrl` for the canonical URL, e.g. `"/about"`. |
+| `siteName`    | `string`  | —        | Overrides global `siteName`. Pass `""` to suppress the suffix.     |
+| `baseUrl`     | `string`  | —        | Overrides global `baseUrl`.                                        |
+| `noIndex`     | `boolean` | —        | Sets `robots: { index: false, follow: false }` when `true`.        |
+| `locale`      | `string`  | —        | Overrides global `locale` for `og:locale`, e.g. `"fr_FR"`.         |
 
 ---
 

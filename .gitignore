@@ -1,3 +1,7 @@
+# @Author ColdByDefault 2026
+# @MIT License
+
+
 # Dependencies
 node_modules/
 
@@ -33,3 +37,6 @@ coverage/
 # Temporary files
 *.tmp
 *.temp
+
+# Local test playground (never pushed)
+playground/

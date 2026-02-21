@@ -1,3 +1,8 @@
+/**
+ * @author ColdByDefault
+ * @MIT License
+ */ 
+
 import { defineConfig } from 'tsup';
 
 export default defineConfig({

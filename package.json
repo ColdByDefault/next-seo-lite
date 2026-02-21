@@ -1,7 +1,9 @@
 {
   "name": "@coldbydefault/next-seo-lite",
-  "version": "1.0.0",
-  "description": "Stop writing 50 lines of Meta tags. Do it in 5. A zero-dependency SEO helper for Next.js.",
+  "author": "ColdByDefault",
+  "license": "MIT",
+  "version": "1.0.1",
+  "description": "A zero-dependency SEO helper for Next.js.",
   "repository": {
     "type": "git",
     "url": "https://github.com/coldbydefault/next-seo-lite.git"
@@ -37,8 +39,6 @@
     "twitter-card",
     "canonical"
   ],
-  "author": "",
-  "license": "MIT",
   "peerDependencies": {
     "next": ">=13.0.0"
   },

@@ -1,3 +1,8 @@
+/**
+ * @Author ColdByDefault 2026
+ * @MIT License
+ */
+
 import type { Metadata } from "next";
 
 // ---------------------------------------------------------------------------
@@ -15,6 +20,16 @@ export interface SEOConfig {
   baseUrl?: string;
   /** Fallback OG/Twitter image URL used when a page omits its own image. */
   defaultImage?: string;
+  /**
+   * Character(s) placed between the page title and site name.
+   * Defaults to `"|"` → `"Home | MyBrand"`.
+   */
+  titleSeparator?: string;
+  /**
+   * Default `og:locale` value, e.g. `"en_US"`.
+   * Can be overridden per-page via `SEOProps.locale`.
+   */
+  locale?: string;
 }
 
 /**
@@ -26,7 +41,7 @@ export interface SEOProps {
   /** Short description shown in search results and social previews. */
   description: string;
   /**
-   * Absolute or relative path for this page's OG/Twitter image.
+   * Absolute URL for this page's OG/Twitter image.
    * Falls back to `SEOConfig.defaultImage` when omitted.
    */
   image?: string;
@@ -45,9 +60,14 @@ export interface SEOProps {
    */
   baseUrl?: string;
   /**
-   * Override the global `defaultImage` for this page.
+   * When `true`, sets `robots: { index: false, follow: false }`.
+   * Use for private pages like /dashboard, /checkout, /thank-you.
    */
-  defaultImage?: string;
+  noIndex?: boolean;
+  /**
+   * Override `og:locale` for this specific page, e.g. `"fr_FR"`.
+   */
+  locale?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -103,12 +123,14 @@ function buildMetadata(props: SEOProps, config: SEOConfig): Metadata {
   const siteName =
     props.siteName !== undefined ? props.siteName : config.siteName;
   const baseUrl = props.baseUrl ?? config.baseUrl;
-  const image = props.image ?? props.defaultImage ?? config.defaultImage;
+  const image = props.image ?? config.defaultImage;
+  const separator = config.titleSeparator ?? "|";
+  const locale = props.locale ?? config.locale;
 
   // ---- Title --------------------------------------------------------------
   const fullTitle =
     siteName !== undefined && siteName !== ""
-      ? `${props.title} | ${siteName}`
+      ? `${props.title} ${separator} ${siteName}`
       : props.title;
 
   // ---- Canonical URL ------------------------------------------------------
@@ -123,13 +145,16 @@ function buildMetadata(props: SEOProps, config: SEOConfig): Metadata {
   // ---- OG images ----------------------------------------------------------
   const ogImages: { url: string }[] = image ? [{ url: image }] : [];
 
-  // ---- Twitter images -----------------------------------------------------
+  // ---- Twitter images + card type -----------------------------------------
+  // Use summary_large_image only when an image is available; fall back to summary.
+  const twitterCard = image ? "summary_large_image" : "summary";
   const twitterImages: string[] = image ? [image] : [];
 
   // ---- Assemble Metadata --------------------------------------------------
   const metadata: Metadata = {
     title: fullTitle,
     description: props.description,
+    ...(props.noIndex && { robots: { index: false, follow: false } }),
     openGraph: {
       title: fullTitle,
       description: props.description,
@@ -137,9 +162,10 @@ function buildMetadata(props: SEOProps, config: SEOConfig): Metadata {
       type: "website",
       ...(siteName && { siteName }),
       ...(canonical && { url: canonical }),
+      ...(locale && { locale }),
     },
     twitter: {
-      card: "summary_large_image",
+      card: twitterCard,
       title: fullTitle,
       description: props.description,
       ...(twitterImages.length > 0 && { images: twitterImages }),
