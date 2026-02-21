@@ -25,11 +25,11 @@ This package is published to **both npm and GitHub Packages** — use whichever 
 ### Option A — npm (recommended, zero friction)
 
 ```bash
-npm install @coldbydefault/next-seo-lite
+npm install @coldbydefaultt/next-seo-lite
 # or
-yarn add @coldbydefault/next-seo-lite
+yarn add @coldbydefaultt/next-seo-lite
 # or
-pnpm add @coldbydefault/next-seo-lite
+pnpm add @coldbydefaultt/next-seo-lite
 ```
 
 No auth, no `.npmrc` changes needed. ✅
@@ -58,6 +58,8 @@ npm login --registry=https://npm.pkg.github.com --scope=@coldbydefault
 npm install @coldbydefault/next-seo-lite
 ```
 
+> **Note:** The npm registry package is `@coldbydefaultt/next-seo-lite`; GitHub Packages is `@coldbydefault/next-seo-lite`. Adjust your imports accordingly.
+
 ---
 
 ## Quick Start
@@ -66,7 +68,7 @@ npm install @coldbydefault/next-seo-lite
 
 ```tsx
 // app/about/page.tsx
-import { defineSEO } from "@coldbydefault/next-seo-lite";
+import { defineSEO } from "@coldbydefaultt/next-seo-lite";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = defineSEO({
@@ -113,7 +115,7 @@ Define your globals once, then call the returned function on every page.
 
 ```ts
 // lib/seo.ts
-import { createSEOConfig } from "@coldbydefault/next-seo-lite";
+import { createSEOConfig } from "@coldbydefaultt/next-seo-lite";
 
 export const defineSEO = createSEOConfig({
   siteName: "MyBrand",

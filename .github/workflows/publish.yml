@@ -21,7 +21,7 @@ jobs:
             - run: npm test
 
             - name: Publish to npm
-              run: npm publish --access public
+              run: node scripts/publish-npm.js
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
