@@ -2,7 +2,7 @@
   "name": "@coldbydefault/next-seo-lite",
   "author": "ColdByDefault",
   "license": "MIT",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A zero-dependency SEO helper for Next.js.",
   "repository": {
     "type": "git",
