@@ -27,11 +27,11 @@ This package is published to **both npm and GitHub Packages** — use whichever 
 ### Option A — npm (recommended, zero friction)
 
 ```bash
-npm install @coldbydefault/next-seo-lite
+npm install @coldbydefault/next-seo-lite@latest
 # or
-yarn add @coldbydefault/next-seo-lite
+yarn add @coldbydefault/next-seo-lite@latest
 # or
-pnpm add @coldbydefault/next-seo-lite
+pnpm add @coldbydefault/next-seo-lite@latest
 ```
 
 No auth, no `.npmrc` changes needed. ✅
@@ -57,7 +57,7 @@ npm login --registry=https://npm.pkg.github.com --scope=@coldbydefault
 **3. Install** (same command as npm):
 
 ```bash
-npm install @coldbydefault/next-seo-lite
+npm install @coldbydefault/next-seo-lite@latest
 ```
 
 ---
