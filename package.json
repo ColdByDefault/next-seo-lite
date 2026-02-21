@@ -1,0 +1,56 @@
+{
+  "name": "@coldbydefault/next-seo-lite",
+  "version": "1.0.0",
+  "description": "Stop writing 50 lines of Meta tags. Do it in 5. A zero-dependency SEO helper for Next.js.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/coldbydefault/next-seo-lite.git"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build",
+    "publish:npm": "npm publish --access public --registry https://registry.npmjs.org",
+    "publish:github": "npm publish --registry https://npm.pkg.github.com",
+    "release": "npm run test && npm run publish:npm && npm run publish:github"
+  },
+  "keywords": [
+    "next.js",
+    "seo",
+    "metadata",
+    "opengraph",
+    "twitter-card",
+    "canonical"
+  ],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "next": ">=13.0.0"
+  },
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "next": "^15.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0"
+  }
+}
