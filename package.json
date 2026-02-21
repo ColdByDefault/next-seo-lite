@@ -6,7 +6,7 @@
   "description": "A zero-dependency SEO helper for Next.js.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/coldbydefault/next-seo-lite.git"
+    "url": "git+https://github.com/coldbydefault/next-seo-lite.git"
   },
   "main": "dist/index.js",
   "module": "dist/index.mjs",
