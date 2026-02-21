@@ -2,7 +2,7 @@
   "name": "@coldbydefault/next-seo-lite",
   "author": "ColdByDefault",
   "license": "MIT",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A zero-dependency SEO helper for Next.js.",
   "repository": {
     "type": "git",
@@ -27,8 +27,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "prepublishOnly": "npm run build",
-    "publish:npm": "npm publish --access public --registry https://registry.npmjs.org",
-    "publish:github": "npm publish --access public --registry https://npm.pkg.github.com",
+    "publish:npm": "npm publish --access public --@coldbydefault:registry=https://registry.npmjs.org",
+    "publish:github": "npm publish --access public --@coldbydefault:registry=https://npm.pkg.github.com",
     "release": "npm run test && npm run publish:npm && npm run publish:github"
   },
   "keywords": [
