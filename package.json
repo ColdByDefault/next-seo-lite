@@ -2,8 +2,8 @@
   "name": "@coldbydefault/next-seo-lite",
   "author": "ColdByDefault",
   "license": "MIT",
-  "version": "1.0.3",
-  "description": "A zero-dependency SEO helper for Next.js.",
+  "version": "2.0.0",
+  "description": "A zero-dependency SEO helper for Next.js — 100% Lighthouse SEO score out of the box.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/coldbydefault/next-seo-lite.git"
@@ -37,7 +37,13 @@
     "metadata",
     "opengraph",
     "twitter-card",
-    "canonical"
+    "canonical",
+    "json-ld",
+    "structured-data",
+    "lighthouse",
+    "hreflang",
+    "robots",
+    "schema.org"
   ],
   "peerDependencies": {
     "next": ">=13.0.0"

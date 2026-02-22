@@ -3,7 +3,7 @@
 > **Stop writing 50 lines of Meta tags. Do it in 5.**
 
 A tiny, zero-runtime-dependency SEO helper for [Next.js](https://nextjs.org/) App Router.  
-It turns simple props into the full `Metadata` object Next.js expects — including `openGraph`, `twitter`, and automatic canonical URLs.
+It turns simple props into the full `Metadata` object Next.js expects — including `openGraph`, `twitter`, canonical URLs, structured data (JSON-LD), and everything you need for a **100% Google Lighthouse SEO score**.
 
 ---
 
@@ -11,11 +11,17 @@ It turns simple props into the full `Metadata` object Next.js expects — includ
 
 - **Title suffixing** — `"Home"` becomes `"Home | MyBrand"` automatically.
 - **Configurable separator** — use `" – "` or `" · "` instead of the default `"|"` via `titleSeparator`.
-- **OpenGraph** — fills `og:title`, `og:description`, `og:image`, and `og:locale` in one call.
-- **Twitter Cards** — automatically uses `summary_large_image` when an image is provided, falls back to `summary` otherwise.
+- **OpenGraph** — fills `og:title`, `og:description`, `og:image` (with `width`, `height`, `alt`), `og:locale`, and `og:type` in one call.
+- **Twitter Cards** — automatically uses `summary_large_image` when an image is provided, falls back to `summary` otherwise. Supports `twitter:creator` and `twitter:site`.
 - **Canonical URLs** — combine a `baseUrl` with a page `path` and you're done.
+- **hreflang alternates** — multi-language support via `alternateLocales` config or per-page `alternates`.
 - **Default fallback image** — set once at the root, used everywhere you don't override it.
+- **Keywords** — global + page-level keywords, merged and de-duplicated.
+- **Author / Publisher** — sets `meta[name=author]`, `meta[name=creator]`, and `meta[name=publisher]`.
+- **`metadataBase`** — automatically set from `baseUrl` for proper URL resolution.
+- **Comprehensive robots** — public pages get full `googleBot` directives (`max-image-preview: large`, `max-snippet: -1`, `max-video-preview: -1`).
 - **`noIndex` support** — mark private pages (`/dashboard`, `/checkout`) with a single flag.
+- **Structured data (JSON-LD)** — built-in helpers for `Person`, `Article`/`BlogPosting`, and `Organization` schemas.
 - **Zero runtime dependencies** — only `next` as a peer dep (for types).
 
 ---
@@ -78,33 +84,9 @@ export const metadata: Metadata = defineSEO({
   image: "https://mysite.com/about-og.png",
   baseUrl: "https://mysite.com",
   path: "/about",
+  keywords: ["about", "team", "company"],
+  author: "Jane Doe",
 });
-```
-
-That one call replaces this:
-
-```tsx
-export const metadata: Metadata = {
-  title: "About Us | MyBrand",
-  description: "Learn more about our team.",
-  openGraph: {
-    title: "About Us | MyBrand",
-    description: "Learn more about our team.",
-    images: [{ url: "https://mysite.com/about-og.png" }],
-    type: "website",
-    siteName: "MyBrand",
-    url: "https://mysite.com/about",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "About Us | MyBrand",
-    description: "Learn more about our team.",
-    images: ["https://mysite.com/about-og.png"],
-  },
-  alternates: {
-    canonical: "https://mysite.com/about",
-  },
-};
 ```
 
 ---
@@ -121,6 +103,15 @@ export const defineSEO = createSEOConfig({
   siteName: "MyBrand",
   baseUrl: "https://mysite.com",
   defaultImage: "https://mysite.com/og-default.png",
+  keywords: ["MyBrand", "web development"],
+  author: "Jane Doe",
+  publisher: "MyBrand Inc.",
+  twitterHandle: "@mybrand",
+  locale: "en_US",
+  alternateLocales: {
+    en: "",
+    de: "/de",
+  },
 });
 ```
 
@@ -150,9 +141,78 @@ export async function generateMetadata({
   return defineSEO({
     title: post.title,
     description: post.summary,
-    image: post.coverImage, // overrides the global defaultImage
+    image: post.coverImage,
     path: `/blog/${params.slug}`,
+    keywords: post.tags,
+    type: "article",
   });
+}
+```
+
+---
+
+### 3. Structured Data (JSON-LD)
+
+Use the built-in schema helpers to generate valid JSON-LD for Google Rich Results.
+
+```tsx
+// app/layout.tsx
+import { personSchema, jsonLdScript } from "@coldbydefault/next-seo-lite";
+
+const schema = personSchema({
+  name: "Jane Doe",
+  url: "https://janedoe.dev",
+  jobTitle: "Full Stack Developer",
+  description: "Building modern web applications.",
+  email: "jane@example.com",
+  sameAs: ["https://github.com/janedoe", "https://linkedin.com/in/janedoe"],
+  knowsAbout: ["React", "Next.js", "TypeScript"],
+  location: "Berlin, Germany",
+  worksFor: { name: "Acme Corp", url: "https://acme.com" },
+});
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <head>
+        <div dangerouslySetInnerHTML={{ __html: jsonLdScript(schema) }} />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+```tsx
+// app/blog/[slug]/page.tsx
+import { articleSchema, jsonLdScript } from "@coldbydefault/next-seo-lite";
+
+export default async function BlogPost({ params }) {
+  const post = await getPost(params.slug);
+
+  const schema = articleSchema({
+    headline: post.title,
+    description: post.excerpt,
+    url: `https://mysite.com/blog/${post.slug}`,
+    image: post.coverImage,
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt,
+    authorName: "Jane Doe",
+    authorUrl: "https://janedoe.dev",
+    publisherName: "MyBrand",
+    publisherLogo: "https://mysite.com/logo.png",
+    wordCount: post.wordCount,
+    readingTime: post.readingTime,
+    keywords: post.tags,
+    articleSection: post.category,
+  });
+
+  return (
+    <>
+      <div dangerouslySetInnerHTML={{ __html: jsonLdScript(schema) }} />
+      <article>{/* ... */}</article>
+    </>
+  );
 }
 ```
 
@@ -173,28 +233,79 @@ Page-level props always win over the global config.
 
 ### `SEOConfig`
 
-| Prop             | Type     | Description                                                          |
-| ---------------- | -------- | -------------------------------------------------------------------- |
-| `siteName`       | `string` | Appended to every title: `"Page \| SiteName"`.                       |
-| `baseUrl`        | `string` | Absolute base URL for canonical links, e.g. `"https://example.com"`. |
-| `defaultImage`   | `string` | Fallback OG / Twitter image URL.                                     |
-| `titleSeparator` | `string` | Separator between title and site name. Defaults to `"\|"`.           |
-| `locale`         | `string` | Default `og:locale`, e.g. `"en_US"`.                                 |
+| Prop               | Type                     | Description                                                                                    |
+| ------------------ | ------------------------ | ---------------------------------------------------------------------------------------------- |
+| `siteName`         | `string`                 | Appended to every title: `"Page \| SiteName"`.                                                 |
+| `baseUrl`          | `string`                 | Absolute base URL for canonical links, e.g. `"https://example.com"`. Also sets `metadataBase`. |
+| `defaultImage`     | `string`                 | Fallback OG / Twitter image URL.                                                               |
+| `titleSeparator`   | `string`                 | Separator between title and site name. Defaults to `"\|"`.                                     |
+| `locale`           | `string`                 | Default `og:locale`, e.g. `"en_US"`.                                                           |
+| `keywords`         | `string[]`               | Global keywords merged into every page.                                                        |
+| `author`           | `string`                 | Author name for `meta[name=author]` and `meta[name=creator]`.                                  |
+| `publisher`        | `string`                 | Publisher name. Falls back to `siteName`.                                                      |
+| `twitterHandle`    | `string`                 | `@handle` for `twitter:creator` and `twitter:site`.                                            |
+| `alternateLocales` | `Record<string, string>` | Locale → path prefix map for hreflang (`{ en: "", de: "/de" }`).                               |
 
 ---
 
 ### `SEOProps`
 
-| Prop          | Type      | Required | Description                                                        |
-| ------------- | --------- | -------- | ------------------------------------------------------------------ |
-| `title`       | `string`  | ✅       | Page title (without suffix).                                       |
-| `description` | `string`  | ✅       | Short page description.                                            |
-| `image`       | `string`  | —        | Overrides `defaultImage`.                                          |
-| `path`        | `string`  | —        | Slug appended to `baseUrl` for the canonical URL, e.g. `"/about"`. |
-| `siteName`    | `string`  | —        | Overrides global `siteName`. Pass `""` to suppress the suffix.     |
-| `baseUrl`     | `string`  | —        | Overrides global `baseUrl`.                                        |
-| `noIndex`     | `boolean` | —        | Sets `robots: { index: false, follow: false }` when `true`.        |
-| `locale`      | `string`  | —        | Overrides global `locale` for `og:locale`, e.g. `"fr_FR"`.         |
+| Prop             | Type                     | Required | Description                                                        |
+| ---------------- | ------------------------ | -------- | ------------------------------------------------------------------ |
+| `title`          | `string`                 | ✅       | Page title (without suffix).                                       |
+| `description`    | `string`                 | ✅       | Short page description.                                            |
+| `image`          | `string`                 | —        | Overrides `defaultImage`.                                          |
+| `imageAlt`       | `string`                 | —        | Alt text for OG image. Defaults to `"<title> - <siteName>"`.       |
+| `imageWidth`     | `number`                 | —        | OG image width in px. Defaults to `1200`.                          |
+| `imageHeight`    | `number`                 | —        | OG image height in px. Defaults to `630`.                          |
+| `path`           | `string`                 | —        | Slug appended to `baseUrl` for the canonical URL, e.g. `"/about"`. |
+| `siteName`       | `string`                 | —        | Overrides global `siteName`. Pass `""` to suppress the suffix.     |
+| `baseUrl`        | `string`                 | —        | Overrides global `baseUrl`.                                        |
+| `noIndex`        | `boolean`                | —        | Sets `robots: { index: false, follow: false }` when `true`.        |
+| `locale`         | `string`                 | —        | Overrides global `locale` for `og:locale`.                         |
+| `keywords`       | `string[]`               | —        | Merged with global keywords (de-duplicated).                       |
+| `author`         | `string`                 | —        | Overrides global author.                                           |
+| `type`           | `string`                 | —        | Override `og:type`. Defaults to `"website"`.                       |
+| `alternates`     | `Record<string, string>` | —        | Per-page language alternates (locale → URL/path).                  |
+| `structuredData` | `Record \| Record[]`     | —        | JSON-LD structured data object(s).                                 |
+
+---
+
+### Structured Data Helpers
+
+#### `personSchema(props: PersonSchemaProps): Record<string, unknown>`
+
+Generates a Schema.org `Person` JSON-LD object.
+
+#### `articleSchema(props: ArticleSchemaProps): Record<string, unknown>`
+
+Generates a Schema.org `Article` / `BlogPosting` JSON-LD object.
+
+#### `organizationSchema(props: OrganizationSchemaProps): Record<string, unknown>`
+
+Generates a Schema.org `Organization` JSON-LD object.
+
+#### `jsonLdScript(data): string`
+
+Serialises JSON-LD into a `<script type="application/ld+json">` tag string for use with `dangerouslySetInnerHTML`.
+
+---
+
+## What This Gets You (Lighthouse SEO)
+
+| Check                             | Status |
+| --------------------------------- | ------ |
+| `<title>` element                 | ✅     |
+| Meta description                  | ✅     |
+| Valid canonical                   | ✅     |
+| hreflang alternates               | ✅     |
+| Open Graph tags                   | ✅     |
+| Twitter Card tags                 | ✅     |
+| robots / googleBot directives     | ✅     |
+| Structured data (JSON-LD)         | ✅     |
+| `metadataBase` for URL resolution | ✅     |
+| Keywords meta tag                 | ✅     |
+| Author / Publisher                | ✅     |
 
 ---
 
