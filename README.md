@@ -22,7 +22,8 @@ It turns simple props into the full `Metadata` object Next.js expects — includ
 - **Comprehensive robots** — public pages get full `googleBot` directives (`max-image-preview: large`, `max-snippet: -1`, `max-video-preview: -1`).
 - **`noIndex` support** — mark private pages (`/dashboard`, `/checkout`) with a single flag.
 - **Structured data (JSON-LD)** — built-in helpers for `Person`, `Article`/`BlogPosting`, and `Organization` schemas.
-- **Zero runtime dependencies** — only `next` as a peer dep (for types).
+- **`<JsonLd>` component** — renders a `<script type="application/ld+json">` tag directly — no wrapper `<div>`, no `dangerouslySetInnerHTML` in your code, no hydration mismatches in Next.js.
+- **Zero runtime dependencies** — only `next` and `react` as peer deps (for types / JSX).
 
 ---
 
@@ -153,11 +154,11 @@ export async function generateMetadata({
 
 ### 3. Structured Data (JSON-LD)
 
-Use the built-in schema helpers to generate valid JSON-LD for Google Rich Results.
+Use the built-in schema helpers and the `<JsonLd>` component to embed valid JSON-LD for Google Rich Results — no wrapper `<div>`, no `dangerouslySetInnerHTML` in your code, and no hydration mismatches in Next.js.
 
 ```tsx
 // app/layout.tsx
-import { personSchema, jsonLdScript } from "@coldbydefault/next-seo-lite";
+import { personSchema, JsonLd } from "@coldbydefault/next-seo-lite";
 
 const schema = personSchema({
   name: "Jane Doe",
@@ -173,11 +174,11 @@ const schema = personSchema({
 
 export default function RootLayout({ children }) {
   return (
-    <html>
-      <head>
-        <div dangerouslySetInnerHTML={{ __html: jsonLdScript(schema) }} />
-      </head>
-      <body>{children}</body>
+    <html lang="en">
+      <body>
+        <JsonLd data={schema} />
+        {children}
+      </body>
     </html>
   );
 }
@@ -185,7 +186,7 @@ export default function RootLayout({ children }) {
 
 ```tsx
 // app/blog/[slug]/page.tsx
-import { articleSchema, jsonLdScript } from "@coldbydefault/next-seo-lite";
+import { articleSchema, JsonLd } from "@coldbydefault/next-seo-lite";
 
 export default async function BlogPost({ params }) {
   const post = await getPost(params.slug);
@@ -209,12 +210,17 @@ export default async function BlogPost({ params }) {
 
   return (
     <>
-      <div dangerouslySetInnerHTML={{ __html: jsonLdScript(schema) }} />
+      <JsonLd data={schema} />
       <article>{/* ... */}</article>
     </>
   );
 }
 ```
+
+> **Migrating from `jsonLdScript()`?** The old string-based helper still works but is deprecated.
+> Replace `<div dangerouslySetInnerHTML={{ __html: jsonLdScript(data) }} />` with `<JsonLd data={data} />`.
+
+````
 
 ---
 
@@ -226,7 +232,7 @@ Standalone helper — no global config needed.
 
 ### `createSEOConfig(config: SEOConfig): (props: SEOProps) => Metadata`
 
-Returns a `defineSEO` function pre-loaded with your global defaults.  
+Returns a `defineSEO` function pre-loaded with your global defaults.
 Page-level props always win over the global config.
 
 ---
@@ -285,9 +291,18 @@ Generates a Schema.org `Article` / `BlogPosting` JSON-LD object.
 
 Generates a Schema.org `Organization` JSON-LD object.
 
-#### `jsonLdScript(data): string`
+#### `JsonLd({ data }: JsonLdProps): ReactElement`
 
-Serialises JSON-LD into a `<script type="application/ld+json">` tag string for use with `dangerouslySetInnerHTML`.
+Renders a `<script type="application/ld+json">` tag directly. Accepts a single schema object or an array. No wrapper elements, no hydration issues.
+
+```tsx
+import { JsonLd, personSchema } from "@coldbydefault/next-seo-lite";
+<JsonLd data={personSchema({ name: "Jane", url: "https://jane.dev" })} />
+````
+
+#### `jsonLdScript(data): string` _(deprecated)_
+
+Serialises JSON-LD into a `<script type="application/ld+json">` tag string for use with `dangerouslySetInnerHTML`. Prefer `<JsonLd>` instead.
 
 ---
 

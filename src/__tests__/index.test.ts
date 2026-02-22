@@ -11,7 +11,10 @@ import {
   articleSchema,
   organizationSchema,
   jsonLdScript,
+  JsonLd,
 } from "../index";
+import * as React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 
 // ---------------------------------------------------------------------------
 // defineSEO – standalone
@@ -708,5 +711,69 @@ describe("jsonLdScript", () => {
     const html = jsonLdScript(schemas);
     expect(html).toContain('"@type":"Person"');
     expect(html).toContain('"@type":"Organization"');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// JsonLd React Component
+// ---------------------------------------------------------------------------
+
+describe("JsonLd component", () => {
+  it("renders a <script type='application/ld+json'> with a single schema", () => {
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      name: "Jane",
+    };
+    const html = renderToStaticMarkup(
+      React.createElement(JsonLd, { data: schema }),
+    );
+    expect(html).toContain('<script type="application/ld+json">');
+    expect(html).toContain('"@type":"Person"');
+    expect(html).toContain('"name":"Jane"');
+    expect(html).toContain("</script>");
+  });
+
+  it("renders an array of schemas", () => {
+    const schemas = [
+      { "@context": "https://schema.org", "@type": "Person", name: "Jane" },
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        name: "Acme",
+      },
+    ];
+    const html = renderToStaticMarkup(
+      React.createElement(JsonLd, { data: schemas }),
+    );
+    expect(html).toContain('"@type":"Person"');
+    expect(html).toContain('"@type":"Organization"');
+  });
+
+  it("does not produce a wrapper element", () => {
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      name: "Jane",
+    };
+    const html = renderToStaticMarkup(
+      React.createElement(JsonLd, { data: schema }),
+    );
+    // Should start with <script, not <div> or any other wrapper
+    expect(html).toMatch(/^<script /);
+    expect(html).not.toContain("<div");
+  });
+
+  it("works with personSchema output", () => {
+    const person = personSchema({
+      name: "Jane Doe",
+      url: "https://janedoe.dev",
+      jobTitle: "Developer",
+    });
+    const html = renderToStaticMarkup(
+      React.createElement(JsonLd, { data: person }),
+    );
+    expect(html).toContain('"@type":"Person"');
+    expect(html).toContain('"jobTitle":"Developer"');
   });
 });
