@@ -29,7 +29,7 @@
     "prepublishOnly": "npm run build",
     "publish:npm": "npm publish --access public --@coldbydefault:registry=https://registry.npmjs.org",
     "publish:github": "npm publish --access public --@coldbydefault:registry=https://npm.pkg.github.com",
-    "release": "npm run test && npm run publish:npm && npm run publish:github"
+    "release": "npm run test && npm run publish:github && npm run publish:npm"
   },
   "keywords": [
     "next.js",
