@@ -6,7 +6,14 @@
   "description": "A zero-dependency SEO helper for Next.js — 100% Lighthouse SEO score out of the box.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/coldbydefault/next-seo-lite.git"
+    "url": "git+https://github.com/ColdByDefault/next-seo-lite.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ColdByDefault/next-seo-lite/issues"
+  },
+  "homepage": "https://github.com/ColdByDefault/next-seo-lite#readme",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   },
   "main": "dist/index.js",
   "module": "dist/index.mjs",
